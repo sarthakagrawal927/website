@@ -1,6 +1,7 @@
 import got from 'got';
 
 const getRelevantData = (objects: any[]) => {
+  if (!objects) return [];
   return objects.map((object) => {
     return {
       name: object?.name,
@@ -23,8 +24,7 @@ export async function GET(request: Request) {
 
   await got(
     {
-      // ${relevantData.date} add later
-      url: `https://personalsite927-default-rtdb.asia-southeast1.firebasedatabase.app/product.json`,
+      url: `${process.env.FIREBASE_URL}/product/${relevantData.date}.json`,
       method: 'POST',
       body: JSON.stringify(relevantData),
     }).json();
