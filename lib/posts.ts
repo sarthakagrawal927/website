@@ -7,16 +7,16 @@ import { Post, FileMeta } from './types';
 
 const postsDirectory = path.join(process.cwd(), 'posts');
 
-const getAllFiles = function (dirPath: string, arrayOfFiles: FileMeta[]) {
+const getAllFiles = function (dirPath: string = postsDirectory, arrayOfFiles: FileMeta[] = []) {
   let files = fs.readdirSync(dirPath)
 
   arrayOfFiles = arrayOfFiles || []
 
   files.forEach(function (file) {
-    if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+    if (fs.statSync(path.join(dirPath, file)).isDirectory()) {
+      arrayOfFiles = getAllFiles(path.join(dirPath, file), arrayOfFiles)
     } else {
-      arrayOfFiles.push({ fileName: path.join(file), filePath: dirPath })
+      arrayOfFiles.push({ fileName: file, filePath: dirPath })
     }
   })
 
@@ -32,7 +32,7 @@ const getSlugByFilePath = (fullPath: string) => {
   return `${year}-${month}-${date}`;
 }
 
-const getFilePathByDate = (date: string) => {
+const getFilePathBySlug = (date: string) => {
   const dateArray = date.split('-');
   return path.join(postsDirectory, dateArray[0], dateArray[1], `${dateArray[2]}.md`);
 }
@@ -63,13 +63,11 @@ const getFileDataByPath = async (fullPath: string, withContent: boolean = false)
 }
 
 export async function getSortedPostsData() {
-  // Get file names under /posts
-  const fileMeta = getAllFiles(postsDirectory, []);
-  const allPostsData: Post[] = await Promise.all(fileMeta.map(({ fileName, filePath }) => {
+  const allFileMeta = getAllFiles();
+  const allPostsData: Post[] = await Promise.all(allFileMeta.map(({ fileName, filePath }) => {
     const fullPath = path.join(filePath, fileName);
     return getFileDataByPath(fullPath);
   }));
-  // Sort posts by date
   return allPostsData.sort((a, b) => {
     return a.date < b.date ? 1 : -1;
   });
@@ -88,7 +86,7 @@ export async function getPostsByTag(tag: string) {
   return allPostsData.filter((post) => post.tags.includes(tag));
 };
 
-export function getPostData(date: string) {
-  const filePath = getFilePathByDate(date);
+export function getPostDataBySlug(slug: string) {
+  const filePath = getFilePathBySlug(slug);
   return getFileDataByPath(filePath, true);
 }
