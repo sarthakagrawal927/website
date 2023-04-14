@@ -3,23 +3,11 @@ import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
-
-type Post = {
-  id: string;
-  date: string;
-  title: string;
-  tags: string[];
-  slug: string;
-}
-
-type fileMeta = {
-  fileName: string;
-  filePath: string;
-}
+import { Post, FileMeta } from './types';
 
 const postsDirectory = path.join(process.cwd(), 'posts');
 
-const getAllFiles = function (dirPath: string, arrayOfFiles: fileMeta[]) {
+const getAllFiles = function (dirPath: string, arrayOfFiles: FileMeta[]) {
   let files = fs.readdirSync(dirPath)
 
   arrayOfFiles = arrayOfFiles || []
@@ -85,6 +73,14 @@ export async function getSortedPostsData() {
   return allPostsData.sort((a, b) => {
     return a.date < b.date ? 1 : -1;
   });
+}
+
+export async function getAllTags() {
+  const allPostsData = await getSortedPostsData();
+  const allTags = allPostsData.reduce((acc: string[], { tags }) => {
+    return [...acc, ...tags];
+  }, []);
+  return Array.from((new Set(allTags)).values());
 }
 
 export async function getPostsByTag(tag: string) {
