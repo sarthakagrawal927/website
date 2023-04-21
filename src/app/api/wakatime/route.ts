@@ -10,7 +10,7 @@ const getRelevantData = (objects: any[]) => {
   });
 }
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   const wakatimeResp = await fetch(`https://wakatime.com/api/v1/users/current/status_bar/today?api_key=${process.env.WAKATIME_SECRET_KEY}`);
   const { data } = await wakatimeResp.json();
 

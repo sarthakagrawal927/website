@@ -1,5 +1,5 @@
 import React from 'react';
-import { getPostsByTag, getSortedPostsData } from '../../../../../lib/posts';
+import { getAllTags, getPostsByTag } from '../../../../../lib/posts';
 import Link from 'next/link';
 import { SlugParams } from '../../../../../lib/types';
 
@@ -25,4 +25,11 @@ export default async function Page({ params }: SlugParams) {
       </ul>
     </section>
   );
+}
+
+export async function generateStaticParams() {
+  const tags = await getAllTags();
+  return tags.map((tag) => ({
+    slug: tag,
+  }))
 }
